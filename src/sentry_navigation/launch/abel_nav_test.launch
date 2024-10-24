@@ -1,0 +1,44 @@
+<launch>
+    <include file="$(find simple_robot)/launch/robot.launch"/>
+
+    <!-- 雷达设置 -->
+    <include file="$(find point_lio)/launch/mapping_mid360.launch"/>
+    <node pkg="livox_to_pointcloud2" type="livox_to_pointcloud2_node" name="livox_to_pointcloud2_node" output="screen" >
+    <remap from="/livox/lidar" to="/livox/lidar_192_168_1_3" />
+    </node>
+    <node name='pointcloud_filter' pkg="sentry_navigation" type="pointcloud2_filter"/>
+
+    <!-- 点云分割 -->
+    <include file="$(find linefit_ground_segmentation_ros)/launch/segmentation.launch"/>
+
+    <!-- 三维点云转二维 -->
+    <include file="$(find pointcloud_to_laserscan)/launch/sample_node.launch"/>
+
+    <!-- 坐标系转换设置-->
+    <node pkg="tf" type="static_transform_publisher" name="map_red_to_camera_init" args="-5 0 0.66 0 0 0 map camera_init 100" /> 
+    <node name='odom_trans' pkg="sentry_navigation" type="odom_transform"/>
+
+    <include file="$(find sentry_navigation)/launch/robot_model_visualization.launch"/>
+    
+    <!-- 设置需要用于导航的地图 -->
+    <arg name="map_file" default="$(env HOME)/sentry_ros_25/map/lab_map_6_1.yaml"/>
+
+    <!-- 启用地图服务器map_server -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)">
+    <param name="frame_id" value="map" />
+    </node>     
+
+    <!--amcl定位-->
+    <node pkg="amcl" type="amcl" name="amcl" output="screen">
+        <param name="odom_frame_id" value="odom"/>
+        <param name="base_frame_id" value="base_link"/>
+        <param name="global_frame_id" value="map"/>
+    </node> 
+
+    <!--启动导航框架 -->
+    <include file="$(find sentry_navigation)/launch/abel_move_base.launch"/>
+    <include file="$(find sentry_navigation)/launch/local_plan.launch"/>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find sentry_navigation)/rviz/abel_test.rviz" /> 
+
+</launch>

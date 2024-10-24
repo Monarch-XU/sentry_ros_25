@@ -1,0 +1,8 @@
+prefix=/home/hj/sentry_ros_25/install
+
+Name: linefit_ground_segmentation_ros
+Description: Description of linefit_ground_segmentation_ros
+Version: 0.0.1
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: eigen_conversions linefit_ground_segmentation pcl_conversions pcl_ros roscpp tf2_ros

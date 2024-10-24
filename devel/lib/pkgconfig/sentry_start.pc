@@ -1,0 +1,8 @@
+prefix=/home/hj/sentry_ros_25/devel
+
+Name: sentry_start
+Description: Description of sentry_start
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

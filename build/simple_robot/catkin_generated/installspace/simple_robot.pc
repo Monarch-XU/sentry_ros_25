@@ -1,0 +1,8 @@
+prefix=/home/hj/sentry_ros_25/install
+
+Name: simple_robot
+Description: Description of simple_robot
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs rosconsole message_runtime robot_msgs message_filters
