@@ -76,6 +76,7 @@ bool first_scan_;
 
 
 void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr &msg) {
+    ROS_INFO("get point cloud msg\n");
 // void IcpNode::pointcloudCallback(const boost::shared_ptr<const sensor_msgs::PointCloud2> &msg) {
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
@@ -95,6 +96,7 @@ void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr &msg) {
 
 
 void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg){
+    ROS_INFO("get geometry msg\n");
 // void IcpNode::initialPoseCallback(const boost::shared_ptr<const geometry_msgs::PoseWithCovarianceStamped> &msg){
 
     // Set the initial pose
@@ -277,7 +279,8 @@ PointCloudXYZIN::Ptr addNorm(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud) {
 int main(int argc, char *argv[])  {  
     ros::init(argc,argv,"icp_node");  
 
-    ros::NodeHandle nh;
+    // ros::NodeHandle nh;
+    ros::NodeHandle nh("~");
 
     setlocale(LC_ALL,"");
 
@@ -301,7 +304,7 @@ int main(int argc, char *argv[])  {
     voxel_refine_filter_.setLeafSize(refine_leaf_size, refine_leaf_size, refine_leaf_size);
 
     // 读取PCD文件路径参数
-    nh.param<std::string>("pcd_path", pcd_path_, "/home/abel/MyProject/icp_ws/PCD/RMUL.pcd");
+    nh.param<std::string>("pcd_path", pcd_path_, "/home/hj/sentry_ros_25/PCD/205lib.pcd");
    
     //// TODO:
     // if (!std::filesystem::exists(pcd_path_)) {
@@ -372,7 +375,7 @@ int main(int argc, char *argv[])  {
 
     std::string pointcloud_topic;
     
-    nh.param<std::string>("pointcloud_topic", pointcloud_topic,  "/livox/lidar/pointcloud");
+    nh.param<std::string>("pointcloud_topic", pointcloud_topic,  "/livox/points");
 
     ROS_INFO("pointcloud_topic: %s",pointcloud_topic.c_str());
 

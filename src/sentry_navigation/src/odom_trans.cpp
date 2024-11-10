@@ -36,7 +36,7 @@ void odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
     laser_transform.setOrigin(tf::Vector3(trans_x, trans_y, trans_z));
     laser_transform.setRotation(tf::Quaternion(rot_x, rot_y, rot_z, rot_w));
     transform = transform * laser_transform;
-    odom_broadcaster.sendTransform(tf::StampedTransform(transform, msg->header.stamp, "map", "base_footprint"));
+    odom_broadcaster.sendTransform(tf::StampedTransform(transform, msg->header.stamp, "odom", "base_footprint"));
     //计算里程计给movebase flex
     odom_last = odom;
     last_time = current_time;
@@ -66,8 +66,8 @@ void odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
     tf::Matrix3x3(RQ2).getRPY(roll_angle,pitch_angle,yaw_angle);
 
     odom_move_base.header = msg->header;
+    odom_move_base.header.frame_id = "odom";
     odom_move_base.child_frame_id = "base_footprint";
-    odom_move_base.header.frame_id = "map";
     odom_move_base.pose.pose.position.x = base_transform.getOrigin().getX();
     odom_move_base.pose.pose.position.y = base_transform.getOrigin().getY();
     odom_move_base.pose.pose.position.z = 0;

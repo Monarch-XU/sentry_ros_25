@@ -1,0 +1,4 @@
+<launch>
+    <!--当需要固定里程计坐标系到地图坐标系调试时，进行该launch-->
+    <node pkg="tf" type="static_transform_publisher" name="static_map_to_odom" args="0 0 0 0 0 0 map odom 100" />
+</launch>
