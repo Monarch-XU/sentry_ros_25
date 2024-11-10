@@ -81,11 +81,14 @@ CATKIN_SKIP_TESTING:BOOL=OFF
 // using symlinks instead of copying resources
 CATKIN_SYMLINK_INSTALL:BOOL=OFF
 
+//No help, variable specified on the command line.
+CATKIN_WHITELIST_PACHAGES:UNINITIALIZED=icp_registration
+
 //List of ';' separated packages to build
 CATKIN_WHITELIST_PACKAGES:STRING=
 
 //No help, variable specified on the command line.
-CATKIN_WHITLIST_PACKAGES:UNINITIALIZED=communication
+CATKIN_WHITLIST_PACKAGES:UNINITIALIZED=robot_msgs
 
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=/usr/bin/addr2line
@@ -905,6 +908,15 @@ hik_camera_IS_TOP_LEVEL:STATIC=OFF
 //Value Computed by CMake
 hik_camera_SOURCE_DIR:STATIC=/home/hj/sentry_ros_25/src/hik_camera
 
+//Value Computed by CMake
+icp_registration_BINARY_DIR:STATIC=/home/hj/sentry_ros_25/build/icp_registration
+
+//Value Computed by CMake
+icp_registration_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+icp_registration_SOURCE_DIR:STATIC=/home/hj/sentry_ros_25/src/icp_registration
+
 //The directory containing a CMake configuration file for image_transport.
 image_transport_DIR:PATH=/opt/ros/noetic/share/image_transport/cmake
 
@@ -1419,7 +1431,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=20
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=21
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

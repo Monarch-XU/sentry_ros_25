@@ -2083,6 +2083,32 @@ livox_ros_driver2_node/fast:
 .PHONY : livox_ros_driver2_node/fast
 
 #=============================================================================
+# Target rules for targets named icp_node_test
+
+# Build rule for target.
+icp_node_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 icp_node_test
+.PHONY : icp_node_test
+
+# fast build rule for target.
+icp_node_test/fast:
+	$(MAKE) $(MAKESILENT) -f icp_registration/CMakeFiles/icp_node_test.dir/build.make icp_registration/CMakeFiles/icp_node_test.dir/build
+.PHONY : icp_node_test/fast
+
+#=============================================================================
+# Target rules for targets named icp_node
+
+# Build rule for target.
+icp_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 icp_node
+.PHONY : icp_node
+
+# fast build rule for target.
+icp_node/fast:
+	$(MAKE) $(MAKESILENT) -f icp_registration/CMakeFiles/icp_node.dir/build.make icp_registration/CMakeFiles/icp_node.dir/build
+.PHONY : icp_node/fast
+
+#=============================================================================
 # Target rules for targets named nav_msgs_generate_messages_cpp
 
 # Build rule for target.
@@ -3207,6 +3233,8 @@ help:
 	@echo "... hik_camera_L_node"
 	@echo "... hik_camera_R_Receive_test_node"
 	@echo "... hik_camera_R_node"
+	@echo "... icp_node"
+	@echo "... icp_node_test"
 	@echo "... laser_filters_nodelets"
 	@echo "... laser_scan_filters"
 	@echo "... laserscan_to_pointcloud"
