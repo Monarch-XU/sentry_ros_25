@@ -1726,6 +1726,20 @@ decetion_node/fast:
 .PHONY : decetion_node/fast
 
 # Convenience name for target.
+sentry_navigation/CMakeFiles/initial_pose_pub.dir/rule:
+	cd /home/hj/sentry_ros_25/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 sentry_navigation/CMakeFiles/initial_pose_pub.dir/rule
+.PHONY : sentry_navigation/CMakeFiles/initial_pose_pub.dir/rule
+
+# Convenience name for target.
+initial_pose_pub: sentry_navigation/CMakeFiles/initial_pose_pub.dir/rule
+.PHONY : initial_pose_pub
+
+# fast build rule for target.
+initial_pose_pub/fast:
+	cd /home/hj/sentry_ros_25/build && $(MAKE) $(MAKESILENT) -f sentry_navigation/CMakeFiles/initial_pose_pub.dir/build.make sentry_navigation/CMakeFiles/initial_pose_pub.dir/build
+.PHONY : initial_pose_pub/fast
+
+# Convenience name for target.
 sentry_navigation/CMakeFiles/decetion_node_baoshou.dir/rule:
 	cd /home/hj/sentry_ros_25/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 sentry_navigation/CMakeFiles/decetion_node_baoshou.dir/rule
 .PHONY : sentry_navigation/CMakeFiles/decetion_node_baoshou.dir/rule
@@ -1951,6 +1965,30 @@ src/follow_enemy.cpp.s:
 	cd /home/hj/sentry_ros_25/build && $(MAKE) $(MAKESILENT) -f sentry_navigation/CMakeFiles/enemy_pos_change.dir/build.make sentry_navigation/CMakeFiles/enemy_pos_change.dir/src/follow_enemy.cpp.s
 	cd /home/hj/sentry_ros_25/build && $(MAKE) $(MAKESILENT) -f sentry_navigation/CMakeFiles/enemy_position.dir/build.make sentry_navigation/CMakeFiles/enemy_position.dir/src/follow_enemy.cpp.s
 .PHONY : src/follow_enemy.cpp.s
+
+src/initial_pose_pub.o: src/initial_pose_pub.cpp.o
+.PHONY : src/initial_pose_pub.o
+
+# target to build an object file
+src/initial_pose_pub.cpp.o:
+	cd /home/hj/sentry_ros_25/build && $(MAKE) $(MAKESILENT) -f sentry_navigation/CMakeFiles/initial_pose_pub.dir/build.make sentry_navigation/CMakeFiles/initial_pose_pub.dir/src/initial_pose_pub.cpp.o
+.PHONY : src/initial_pose_pub.cpp.o
+
+src/initial_pose_pub.i: src/initial_pose_pub.cpp.i
+.PHONY : src/initial_pose_pub.i
+
+# target to preprocess a source file
+src/initial_pose_pub.cpp.i:
+	cd /home/hj/sentry_ros_25/build && $(MAKE) $(MAKESILENT) -f sentry_navigation/CMakeFiles/initial_pose_pub.dir/build.make sentry_navigation/CMakeFiles/initial_pose_pub.dir/src/initial_pose_pub.cpp.i
+.PHONY : src/initial_pose_pub.cpp.i
+
+src/initial_pose_pub.s: src/initial_pose_pub.cpp.s
+.PHONY : src/initial_pose_pub.s
+
+# target to generate assembly for a file
+src/initial_pose_pub.cpp.s:
+	cd /home/hj/sentry_ros_25/build && $(MAKE) $(MAKESILENT) -f sentry_navigation/CMakeFiles/initial_pose_pub.dir/build.make sentry_navigation/CMakeFiles/initial_pose_pub.dir/src/initial_pose_pub.cpp.s
+.PHONY : src/initial_pose_pub.cpp.s
 
 src/nav_mode_control.o: src/nav_mode_control.cpp.o
 .PHONY : src/nav_mode_control.o
@@ -2201,6 +2239,7 @@ help:
 	@echo "... enemy_pos_change"
 	@echo "... enemy_position"
 	@echo "... fake_baselink"
+	@echo "... initial_pose_pub"
 	@echo "... mode_control"
 	@echo "... odom_trans"
 	@echo "... odom_transform"
@@ -2230,6 +2269,9 @@ help:
 	@echo "... src/follow_enemy.o"
 	@echo "... src/follow_enemy.i"
 	@echo "... src/follow_enemy.s"
+	@echo "... src/initial_pose_pub.o"
+	@echo "... src/initial_pose_pub.i"
+	@echo "... src/initial_pose_pub.s"
 	@echo "... src/nav_mode_control.o"
 	@echo "... src/nav_mode_control.i"
 	@echo "... src/nav_mode_control.s"

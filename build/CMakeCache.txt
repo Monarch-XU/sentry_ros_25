@@ -85,7 +85,7 @@ CATKIN_SYMLINK_INSTALL:BOOL=OFF
 CATKIN_WHITELIST_PACHAGES:UNINITIALIZED=icp_registration
 
 //List of ';' separated packages to build
-CATKIN_WHITELIST_PACKAGES:STRING=sentry_navigation
+CATKIN_WHITELIST_PACKAGES:STRING=icp_registration
 
 //No help, variable specified on the command line.
 CATKIN_WHITLIST_PACKAGES:UNINITIALIZED=robot_msgs

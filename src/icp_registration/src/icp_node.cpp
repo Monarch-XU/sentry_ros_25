@@ -26,7 +26,8 @@
 // Eigen
 #include<Eigen/Dense>
 
-#include <geometry_msgs/PoseWithCovarianceStamped.h>  
+// #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include <sensor_msgs/PointCloud2.h>
 
 #include <boost/shared_ptr.hpp>
@@ -39,9 +40,8 @@ std::string pointcloud_topic_;
 ros::Subscriber pointcloud_sub_;  
 ros::Subscriber initial_pose_sub_;
 
-void livox_pcl_cbk(const std::string &msg);
-void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr &msg);
-void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg);
+void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr msg);
+void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStamped msg);
 
 static PointCloudXYZIN::Ptr addNorm(PointCloudXYZI::Ptr cloud);
 Eigen::Matrix4d multiAlignSync(PointCloudXYZI::Ptr source, const Eigen::Matrix4d &init_guess);
@@ -59,7 +59,13 @@ pcl::IterativeClosestPointWithNormals<PointType, PointType> icp_refine_;
 PointCloudXYZI::Ptr cloud_in_;
 PointCloudXYZIN::Ptr rough_map_;
 PointCloudXYZIN::Ptr refine_map_;
+// robot_pose_pub=nh.advertise<geometry_msgs::PoseStamped>("/robot_pose",10);
+                // geometry_msgs::PoseStamped robot_pose;
+                // robot_pose.pose.position.x
+                // std::lock_guard lock(mutex_);
+                // robot_pose_pub.publish(robot_pose);
 geometry_msgs::TransformStamped map_to_odom_;
+tf::Transform map_to_odom_transform;
 std::string pcd_path_;
 std::string map_frame_id_, odom_frame_id_, range_odom_frame_id_, laser_frame_id_;
 bool success_;
@@ -74,37 +80,46 @@ bool is_ready_;
 bool first_scan_;
 
 
-
-void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr &msg) {
+// 修改前：const sensor_msgs::PointCloud2ConstPtr &msg
+// 参考接收点云回调函数格式：const sensor_msgs::PointCloud2ConstPtr input
+void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr msg) {
     ROS_INFO("get point cloud msg\n");
 // void IcpNode::pointcloudCallback(const boost::shared_ptr<const sensor_msgs::PointCloud2> &msg) {
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
     
     // 将ROS的PointCloud2消息转换为PCL的PointCloud对象
-    pcl::fromROSMsg(*msg, *cloud);
     pcl::fromROSMsg(*msg, *cloud_in_);
+    ROS_INFO("first_scan_=%d\n",first_scan_);
+
+    // ROS_INFO("pose_msg.pose.pose:\nx=%lf,y=%lf,z=%lf\n",
+    // pose_msg.pose.pose.position.x,pose_msg.pose.pose.position.y,pose_msg.pose.pose.position.z);
+    
     if (first_scan_) {
     // auto pose_msg = std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
-    geometry_msgs::PoseWithCovarianceStamped::Ptr pose_msg(new geometry_msgs::PoseWithCovarianceStamped);
-    pose_msg->header = msg->header;
-    pose_msg->pose.pose = initial_pose_;
+    // geometry_msgs::PoseWithCovarianceStamped::Ptr pose_msg(new geometry_msgs::PoseWithCovarianceStamped);
+    geometry_msgs::PoseWithCovarianceStamped pose_msg;
+    // pose_msg->header = msg->header;
+    pose_msg.header = msg->header;
+    pose_msg.pose.pose = initial_pose_;
+    
     initialPoseCallback(pose_msg);
     first_scan_ = false;
     }
 }
 
-
-void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg){
+// 参考接收位姿回调函数格式：geometry_msgs::PoseWithCovarianceStamped
+void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStamped msg){
     ROS_INFO("get geometry msg\n");
 // void IcpNode::initialPoseCallback(const boost::shared_ptr<const geometry_msgs::PoseWithCovarianceStamped> &msg){
 
     // Set the initial pose
-    Eigen::Vector3d pos(msg->pose.pose.position.x, msg->pose.pose.position.y,
-                        msg->pose.pose.position.z);
+    // msg->pose.pose.position.x
+    Eigen::Vector3d pos(msg.pose.pose.position.x, msg.pose.pose.position.y,
+                        msg.pose.pose.position.z);
     Eigen::Quaterniond q(
-        msg->pose.pose.orientation.w, msg->pose.pose.orientation.x,
-        msg->pose.pose.orientation.y, msg->pose.pose.orientation.z);
+        msg.pose.pose.orientation.w, msg.pose.pose.orientation.x,
+        msg.pose.pose.orientation.y, msg.pose.pose.orientation.z);
 
     Eigen::Matrix4d initial_guess;
     initial_guess.block<3, 3>(0, 0) = q.toRotationMatrix();
@@ -163,6 +178,7 @@ void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr&
 }
 
 
+
 void quaternionToEigenMatrix(const tf::Quaternion& q, Eigen::Matrix3d& rotation_matrix) {
     // 设置旋转矩阵的元素
     rotation_matrix(0, 0) = 1 - 2 * q.y() * q.y() - 2 * q.z() * q.z();
@@ -214,6 +230,10 @@ Eigen::Matrix4d multiAlignSync(PointCloudXYZI::Ptr source, const Eigen::Matrix4d
     pcl::PointCloud<pcl::PointXYZI>::Ptr refine_source(
         new pcl::PointCloud<pcl::PointXYZI>);
 
+    ROS_INFO("pointcloud source size: %ld\n",source->points.size());
+    if(source->points.size()<=0){
+        ROS_INFO("PointCloudXYZI::Ptr source IS EMPTY !!!\n");
+    }
     voxel_rough_filter_.setInputCloud(source);
     voxel_rough_filter_.filter(*rough_source);
     voxel_refine_filter_.setInputCloud(source);
@@ -374,31 +394,46 @@ int main(int argc, char *argv[])  {
     }
 
     std::string pointcloud_topic;
-    
-    nh.param<std::string>("pointcloud_topic", pointcloud_topic,  "/livox/points");
-
-    ROS_INFO("pointcloud_topic: %s",pointcloud_topic.c_str());
-
-
-
+    nh.param<std::string>("pointcloud_topic", pointcloud_topic, "/livox/points");
     pointcloud_sub_ = nh.subscribe(pointcloud_topic,10,pointcloudCallback);
-    
-    initial_pose_sub_ = nh.subscribe("/initialpose",10,initialPoseCallback);
+    ROS_INFO("pointcloud_topic: %s\n",pointcloud_topic.c_str());
+
+    std::string initialpose_topic;
+    nh.param<std::string>("initialpose_topic", initialpose_topic, "/initialpose_pub");
+    initial_pose_sub_ = nh.subscribe(initialpose_topic,10,initialPoseCallback);
+    ROS_INFO("initialpose_topic: %s\n",initialpose_topic.c_str());
 
     tf_publisher_thread_ = std::make_unique<std::thread>([]() {
         ros::Rate rate(100);
         // while (ros::ok()) {
         if (ros::ok()) {
             {
+                // robot_pose_pub=nh.advertise<geometry_msgs::PoseStamped>("/robot_pose",10);
+                // geometry_msgs::PoseStamped robot_pose;
+                // robot_pose.pose.position.x
                 // std::lock_guard lock(mutex_);
+                // robot_pose_pub.publish(robot_pose);
+
+                // tf::Transform laser_transform;
+                // laser_transform.setOrigin(tf::Vector3(trans_x, trans_y, trans_z));
+                // laser_transform.setRotation(tf::Quaternion(rot_x, rot_y, rot_z, rot_w));
+
                 std::lock_guard<std::mutex> lock(mutex_);
                 if (is_ready_) {
                     map_to_odom_.header.stamp = ros::Time::now();
                     map_to_odom_.header.frame_id = map_frame_id_;
                     map_to_odom_.child_frame_id = odom_frame_id_;
+
+                    map_to_odom_transform.setOrigin(tf::Vector3(map_to_odom_.transform.translation.x,  map_to_odom_.transform.translation.y,  map_to_odom_.transform.translation.x));
+                    map_to_odom_transform.setRotation(tf::Quaternion(map_to_odom_.transform.rotation.x, map_to_odom_.transform.rotation.y, map_to_odom_.transform.rotation.z, map_to_odom_.transform.rotation.w));
+
                     // 通过tf_broadcaster_对象发送TF变换信息到TF树中
                     tf::TransformBroadcaster tf_broadcaster_;
-                    tf_broadcaster_.sendTransform(map_to_odom_);
+                    // tf_broadcaster_.sendTransform(map_to_odom_);
+                    tf_broadcaster_.sendTransform(tf::StampedTransform(map_to_odom_transform, ros::Time::now(), map_frame_id_, odom_frame_id_));
+
+                    ROS_INFO("map_to_odom_.transform.translation:\nx=%lf,y=%lf,z=%lf\n",
+                        map_to_odom_.transform.translation.x,map_to_odom_.transform.translation.y,map_to_odom_.transform.translation.z);
                 }
             }
             rate.sleep();

@@ -8,6 +8,8 @@
   <node name='pointcloud_filter' pkg="sentry_navigation" type="pointcloud2_filter"/>
   <!-- <node name='fake_baselink' pkg="sentry_navigation" type="fake_baselink" respawn="true" output="screen"/> -->
   
+  <!--当需要固定里程计坐标系到地图坐标系调试时，进行该launch-->
+    <node pkg="tf" type="static_transform_publisher" name="static_map_to_odom" args="0 0 0 0 0 0 map odom 100" />
   <node pkg="tf" type="static_transform_publisher" name="map_red_to_camera_init" args="0 0 0.66 0 0 0 map camera_init 100" />   
   <!-- <node pkg="tf" type="static_transform_publisher" name="map_blue_to_camera_init" args="21.8 8.1 0 1.57 0 0 map camera_init 100" />    -->
     <!-- <node pkg="tf" type="static_transform_publisher" name="map_test_to_camera_init" args="0 0 0 -1.57 0 0 map camera_init 100" />    -->

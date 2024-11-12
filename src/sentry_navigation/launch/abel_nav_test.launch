@@ -15,6 +15,8 @@
     <include file="$(find pointcloud_to_laserscan)/launch/sample_node.launch"/>
 
     <!-- 坐标系转换设置-->
+    <node pkg="sentry_navigation" type="initial_pose_pub" name="initial_pose_pub" />
+
     <node pkg="tf" type="static_transform_publisher" name="map_red_to_camera_init" args="-5 0 0.66 0 0 0 map camera_init 100" />
     <!--当需要固定里程计坐标系到地图坐标系调试时，进行该launch-->
     <node pkg="tf" type="static_transform_publisher" name="static_map_to_odom" args="0 0 0 0 0 0 map odom 100" />
@@ -31,11 +33,11 @@
     </node>     
 
     <!--amcl定位-->
-    <node pkg="amcl" type="amcl" name="amcl" output="screen">
+    <!-- <node pkg="amcl" type="amcl" name="amcl" output="screen">
         <param name="odom_frame_id" value="odom"/>
         <param name="base_frame_id" value="base_link"/>
         <param name="global_frame_id" value="map"/>
-    </node> 
+    </node>  -->
 
     <!--启动导航框架 -->
     <include file="$(find sentry_navigation)/launch/move_base.launch"/>

@@ -166,6 +166,9 @@ add_executable(pointcloud2_filter src/pointcloud_filter.cpp)
 add_executable(enemy_position src/follow_enemy.cpp)
 
 add_executable(decetion_node src/decetion.cpp)
+
+add_executable(initial_pose_pub src/initial_pose_pub.cpp)
+
 target_link_libraries(decetion_node
     ${CMAKE_THREAD_LIBS_INIT}
     ${catkin_LIBRARIES})
@@ -212,6 +215,10 @@ target_link_libraries(pcd_output
 target_link_libraries(enemy_position
   ${catkin_LIBRARIES}
   enemy_pos_change
+)
+
+target_link_libraries(initial_pose_pub
+  ${catkin_LIBRARIES}
 )
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

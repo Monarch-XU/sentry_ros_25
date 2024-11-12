@@ -14,12 +14,14 @@ void robot_id_callback(const robot_msgs::vision::ConstPtr &msg)
 
 }
 
+#define TEST
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "init_pose_change");
     ros::NodeHandle nh;
     ros::Subscriber robot_id_sub = nh.subscribe("vision_data", 1, &robot_id_callback);
-    ros::Publisher init_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 1);
+    ros::Publisher init_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/initialpose", 1); // initialpose, 改之前没有"/"
     ros::Rate loop_rate(3);
     if (nh.ok())
     {
@@ -68,6 +70,8 @@ int main(int argc, char **argv)
                 ROS_INFO("Setting to :(%f,%f)", x_pos, y_pos);
                 return 0;
             }
+        #ifdef TEST
+        #endif
             ROS_INFO("id is %d", robot_id);
             ros::spinOnce();
         }while (1);
