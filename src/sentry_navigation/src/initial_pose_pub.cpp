@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
     geometry_msgs::PoseWithCovarianceStamped pose_msg;
 
-    while (nh.ok())
+    while (ros::ok())
     {
         pose_msg.header.stamp = ros::Time::now();
         pose_msg.header.frame_id = "map";

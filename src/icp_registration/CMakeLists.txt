@@ -148,6 +148,8 @@ add_executable(icp_node src/icp_node.cpp)
 add_executable(tf_pub src/tf_pub.cpp)
 add_executable(icp_node_test2 src/icp_node_test2.cpp)
 add_executable(pointcloud_pub src/pointcloud_pub.cpp)
+add_executable(icp_node_test3 src/icp_node_test3.cpp)
+
 
 
 ## Rename C++ executable without prefix
@@ -180,7 +182,9 @@ target_link_libraries(icp_node_test2
 target_link_libraries(pointcloud_pub
   ${catkin_LIBRARIES}
 )
-
+target_link_libraries(icp_node_test3
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

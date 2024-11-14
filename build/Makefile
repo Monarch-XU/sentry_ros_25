@@ -1052,6 +1052,19 @@ std_msgs_generate_messages_eus/fast:
 .PHONY : std_msgs_generate_messages_eus/fast
 
 #=============================================================================
+# Target rules for targets named icp_node_test3
+
+# Build rule for target.
+icp_node_test3: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 icp_node_test3
+.PHONY : icp_node_test3
+
+# fast build rule for target.
+icp_node_test3/fast:
+	$(MAKE) -f icp_registration/CMakeFiles/icp_node_test3.dir/build.make icp_registration/CMakeFiles/icp_node_test3.dir/build
+.PHONY : icp_node_test3/fast
+
+#=============================================================================
 # Target rules for targets named std_msgs_generate_messages_lisp
 
 # Build rule for target.
@@ -1509,6 +1522,7 @@ help:
 	@echo "... actionlib_msgs_generate_messages_lisp"
 	@echo "... tf_generate_messages_py"
 	@echo "... std_msgs_generate_messages_eus"
+	@echo "... icp_node_test3"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... actionlib_msgs_generate_messages_eus"
 	@echo "... dynamic_reconfigure_generate_messages_py"

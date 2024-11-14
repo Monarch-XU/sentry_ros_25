@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
     std::string topic_name = "/livox/points";
 
     // 初始化ROS节点
-    ros::init(argc, argv, "pcd_to_ros_publisher");
+    ros::init(argc, argv, "pointcloud_pub");
     ros::NodeHandle nh;
 
     // 创建发布者

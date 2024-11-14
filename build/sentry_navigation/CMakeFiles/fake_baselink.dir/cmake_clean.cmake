@@ -2,7 +2,6 @@ file(REMOVE_RECURSE
   "/home/hj/sentry_ros_25/devel/lib/sentry_navigation/fake_baselink"
   "/home/hj/sentry_ros_25/devel/lib/sentry_navigation/fake_baselink.pdb"
   "CMakeFiles/fake_baselink.dir/src/fake_baselink.cpp.o"
-  "CMakeFiles/fake_baselink.dir/src/fake_baselink.cpp.o.d"
 )
 
 # Per-language clean rules from dependency scanning.

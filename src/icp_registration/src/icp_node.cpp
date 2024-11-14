@@ -54,11 +54,12 @@ pcl::VoxelGrid<pcl::PointXYZI> voxel_rough_filter_;
 pcl::VoxelGrid<pcl::PointXYZI> voxel_refine_filter_;
 int rough_iter_;
 int refine_iter_;
+
 pcl::IterativeClosestPointWithNormals<PointType, PointType> icp_rough_;
 pcl::IterativeClosestPointWithNormals<PointType, PointType> icp_refine_;
-PointCloudXYZI::Ptr cloud_in_;
-PointCloudXYZIN::Ptr rough_map_;
-PointCloudXYZIN::Ptr refine_map_;
+PointCloudXYZI::Ptr cloud_in_; // cloud_in_是当下雷达扫描到的点云
+PointCloudXYZIN::Ptr rough_map_; // 原始地图点云粗处理点云
+PointCloudXYZIN::Ptr refine_map_; // 原始地图点云精处理点云
 // robot_pose_pub=nh.advertise<geometry_msgs::PoseStamped>("/robot_pose",10);
                 // geometry_msgs::PoseStamped robot_pose;
                 // robot_pose.pose.position.x
@@ -192,7 +193,7 @@ void quaternionToEigenMatrix(const tf::Quaternion& q, Eigen::Matrix3d& rotation_
     rotation_matrix(2, 2) = 1 - 2 * q.x() * q.x() - 2 * q.y() * q.y();
 }
 
-
+// 这段代码是重点
 Eigen::Matrix4d multiAlignSync(PointCloudXYZI::Ptr source, const Eigen::Matrix4d &init_guess){
     static auto rotate2rpy = [](Eigen::Matrix3d &rot) -> Eigen::Vector3d {
         double roll = std::atan2(rot(2, 1), rot(2, 2));
@@ -333,7 +334,7 @@ int main(int argc, char *argv[])  {
     // }
     // 用PCL的PCDReader类读取PCD文件，并将点云数据存储在cloud指针指向的对象中
     pcl::PCDReader reader;
-    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>); // 原始点云
     reader.read(pcd_path_, *cloud);
     // 将读取的点云数据作为输入传递给精细体素滤波器，并应用滤波器进行下采样
     voxel_refine_filter_.setInputCloud(cloud);
