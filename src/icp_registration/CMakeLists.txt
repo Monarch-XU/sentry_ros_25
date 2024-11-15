@@ -145,11 +145,13 @@ include_directories(
 # add_executable(icp_node src/icp_registration_ros1.cpp)
 add_executable(icp_node_test src/icp_node_test.cpp)
 add_executable(icp_node src/icp_node.cpp)
+add_executable(icp_node_test3 src/icp_node_test3.cpp)
+add_executable(pointcloud_sub src/pointcloud_sub.cpp)
 add_executable(tf_pub src/tf_pub.cpp)
 add_executable(pointcloud_pub src/pointcloud_pub.cpp)
-add_executable(icp_node_test3 src/icp_node_test3.cpp)
 
 
+find_package(PCL REQUIRED COMPONENTS common io visualization)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -170,15 +172,20 @@ pcl_common pcl_io pcl_visualization
   ${catkin_LIBRARIES}
 )
 target_link_libraries(icp_node
+  ${PCL_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(icp_node_test3
+  ${PCL_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(pointcloud_sub
   ${catkin_LIBRARIES}
 )
 target_link_libraries(tf_pub
   ${catkin_LIBRARIES}
 )
 target_link_libraries(pointcloud_pub
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(icp_node_test3
   ${catkin_LIBRARIES}
 )
 
