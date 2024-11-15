@@ -1393,6 +1393,32 @@ icp_node/fast:
 	$(MAKE) $(MAKESILENT) -f icp_registration/CMakeFiles/icp_node.dir/build.make icp_registration/CMakeFiles/icp_node.dir/build
 .PHONY : icp_node/fast
 
+#=============================================================================
+# Target rules for targets named icp_node_test3
+
+# Build rule for target.
+icp_node_test3: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 icp_node_test3
+.PHONY : icp_node_test3
+
+# fast build rule for target.
+icp_node_test3/fast:
+	$(MAKE) $(MAKESILENT) -f icp_registration/CMakeFiles/icp_node_test3.dir/build.make icp_registration/CMakeFiles/icp_node_test3.dir/build
+.PHONY : icp_node_test3/fast
+
+#=============================================================================
+# Target rules for targets named pointcloud_sub
+
+# Build rule for target.
+pointcloud_sub: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 pointcloud_sub
+.PHONY : pointcloud_sub
+
+# fast build rule for target.
+pointcloud_sub/fast:
+	$(MAKE) $(MAKESILENT) -f icp_registration/CMakeFiles/pointcloud_sub.dir/build.make icp_registration/CMakeFiles/pointcloud_sub.dir/build
+.PHONY : pointcloud_sub/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -1500,6 +1526,8 @@ help:
 	@echo "... gtest_main"
 	@echo "... icp_node"
 	@echo "... icp_node_test"
+	@echo "... icp_node_test3"
+	@echo "... pointcloud_sub"
 .PHONY : help
 
 

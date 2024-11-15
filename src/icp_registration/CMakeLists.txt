@@ -145,7 +145,8 @@ include_directories(
 # add_executable(icp_node src/icp_registration_ros1.cpp)
 add_executable(icp_node_test src/icp_node_test.cpp)
 add_executable(icp_node src/icp_node.cpp)
-
+add_executable(icp_node_test3 src/icp_node_test3.cpp)
+add_executable(pointcloud_sub src/pointcloud_sub.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -168,8 +169,12 @@ pcl_common pcl_io pcl_visualization
 target_link_libraries(icp_node
   ${catkin_LIBRARIES}
 )
-
-
+target_link_libraries(icp_node_test3
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(pointcloud_sub
+  ${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############
