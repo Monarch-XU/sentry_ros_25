@@ -7,6 +7,7 @@ odom_frame_id: "odom_icp"
 laser_frame_id: "livox_frame"
 pointcloud_topic: "/livox/points"
 initialpose_topic: "/initialpose_pub"
+range_odom_frame_id: "map"
 thresh: 0.1
 xy_offset: 0.2
 yaw_offset: 30.0

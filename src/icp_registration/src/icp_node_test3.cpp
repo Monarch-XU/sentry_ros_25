@@ -69,6 +69,7 @@ double yaw_offset_;
 double yaw_resolution_;
 geometry_msgs::Pose initial_pose_;
 bool is_ready_;
+
 bool first_scan_;
 
 
@@ -79,6 +80,9 @@ Eigen::Matrix4d multiAlignSync(PointCloudXYZI::Ptr source, const Eigen::Matrix4d
 void quaternionToEigenMatrix(const tf::Quaternion& q, Eigen::Matrix3d& rotation_matrix);
 void setTransform();
 void printTfInformation();
+
+// test
+void pointCloudCallback_test(const sensor_msgs::PointCloud2ConstPtr& msg);
 
 
 
@@ -94,6 +98,7 @@ int main(int argc, char *argv[])  {
     map_to_odom_transform.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
     map_to_odom_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
 
+    first_scan_ = true;
     is_ready_ = false;
 
     // 初始化一个指向pcl::PointCloud<pcl::PointXYZI>的智能指针，用于存储输入的点云数据
@@ -186,12 +191,14 @@ int main(int argc, char *argv[])  {
     std::string pointcloud_topic;
     nh.param<std::string>("pointcloud_topic", pointcloud_topic, "/livox/points");
     pointcloud_sub_ = nh.subscribe(pointcloud_topic,10,pointcloudCallback);
+    // pointcloud_sub_ = nh.subscribe(pointcloud_topic,10,pointCloudCallback_test);
     ROS_INFO("pointcloud_topic: %s\n",pointcloud_topic.c_str());
 
     std::string initialpose_topic;
     nh.param<std::string>("initialpose_topic", initialpose_topic, "/initialpose_pub");
     initial_pose_sub_ = nh.subscribe(initialpose_topic,10,initialPoseCallback);
     ROS_INFO("initialpose_topic: %s\n",initialpose_topic.c_str());
+
 
     tf_publisher_thread_ = std::make_unique<std::thread>([]() {
         ros::Rate rate(100);
@@ -205,13 +212,9 @@ int main(int argc, char *argv[])  {
             rate.sleep();
         }
     });
-
-
+    ros::spin();
 
     ROS_INFO("icp_registration: initialized\n");
-  
-    ros::spin(); // 保持节点运行，直到接收到关闭信号  
-
     return 0;  
 }
 
@@ -219,6 +222,7 @@ int main(int argc, char *argv[])  {
 // 参考接收点云回调函数格式：const sensor_msgs::PointCloud2ConstPtr input
 
 void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
+    // std::lock_guard<std::mutex> lock(mutex_);
     ROS_INFO("get point cloud msg\n");
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
     // // 将ROS的PointCloud2消息转换为PCL的PointCloud对象
@@ -231,81 +235,96 @@ void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
     geometry_msgs::PoseWithCovarianceStamped pose_msg;
     pose_msg.header = msg->header;
     pose_msg.pose.pose = initial_pose_;
-    initialPoseCallback(pose_msg);
     first_scan_ = false;
+    initialPoseCallback(pose_msg);
+}
+
+void pointCloudCallback_test(const sensor_msgs::PointCloud2ConstPtr& msg) {
+    // 计算点的数量，对于PointCloud2，点的数量是height * width（除非height为1，表示无序点云）
+    size_t pointCount = msg->height * msg->width;
+    cloud_in_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
+    pcl::fromROSMsg(*msg, *cloud_in_);
+    // 打印点云大小
+    ROS_INFO("Received PointCloud2 with %lu points.", pointCount);
+    ROS_INFO("pointcloud size: %ld\n",cloud_in_->points.size());
+    
 }
 
 void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStamped msg){
-    ROS_INFO("get geometry msg\n");
+    if(first_scan_ == false){
+        // std::lock_guard<std::mutex> lock(mutex_);
+        ROS_INFO("get geometry msg\n");
 
-    // Set the initial pose
-    Eigen::Vector3d pos(msg.pose.pose.position.x, msg.pose.pose.position.y,
-                        msg.pose.pose.position.z);
-    Eigen::Quaterniond q(
-        msg.pose.pose.orientation.w, msg.pose.pose.orientation.x,
-        msg.pose.pose.orientation.y, msg.pose.pose.orientation.z);
+        // Set the initial pose
+        Eigen::Vector3d pos(msg.pose.pose.position.x, msg.pose.pose.position.y,
+                            msg.pose.pose.position.z);
+        Eigen::Quaterniond q(
+            msg.pose.pose.orientation.w, msg.pose.pose.orientation.x,
+            msg.pose.pose.orientation.y, msg.pose.pose.orientation.z);
 
-    Eigen::Matrix4d initial_guess;
-    initial_guess.block<3, 3>(0, 0) = q.toRotationMatrix();
-    initial_guess.block<3, 1>(0, 3) = pos;
-    initial_guess(3, 3) = 1;
-    ROS_INFO("Aligning the pointcloud\n");
+        Eigen::Matrix4d initial_guess;
+        initial_guess.block<3, 3>(0, 0) = q.toRotationMatrix();
+        initial_guess.block<3, 1>(0, 3) = pos;
+        initial_guess(3, 3) = 1;
+        ROS_INFO("Aligning the pointcloud\n");
+        
+        // cloud_in_是现在扫描输入的点云，initial_guess是设置的初始位姿
+        // cloud_in_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>)
+        ROS_INFO("pointcloud cloud_in_ size: %ld\n",cloud_in_->points.size());
+        Eigen::Matrix4d map_to_laser = multiAlignSync(cloud_in_, initial_guess);
+        if (!success_) {
+            // map_to_laser是配准修正后的机器人位移，initial_guess是初始坐标，也就是地图原点到机器人初始位置的位移
+            // 如果匹配不成功，
+            map_to_laser = initial_guess;
+            ROS_INFO("ICP failed!\n");
+        }
+
+        Eigen::Matrix4d laser_to_odom = Eigen::Matrix4d::Identity();
+        try {
+            // Get odom to laser transform
+            tf::StampedTransform transform;
+            // 尝试查找从激光帧到里程计帧的变换，超时时间为10秒
+            tf::TransformListener tf_listener_;
+            tf_listener_.waitForTransform(laser_frame_id_, range_odom_frame_id_, ros::Time(0), ros::Duration(10));
+            tf_listener_.lookupTransform(laser_frame_id_, range_odom_frame_id_, ros::Time(0), transform);
+            // RCLCPP_INFO(get_logger(), "%s", transform.header.frame_id.c_str());
+
+            Eigen::Vector3d t(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
+            tf::Quaternion q(transform.getRotation());
+            Eigen::Matrix3d rotation_matrix;
+            quaternionToEigenMatrix(q, rotation_matrix);
+            // laser_to_odom.prerotate(q);
+            // laser_to_odom.translate(t);
+            laser_to_odom.block<3, 3>(0, 0) = rotation_matrix;
+            laser_to_odom.block<3, 1>(0, 3) = t;
+        } catch (tf2::TransformException &ex) {
+            std::lock_guard<std::mutex> lock(mutex_);
+            ROS_INFO("%s", ex.what());
+            is_ready_ = false;
+            return;
+        }
+        
+        Eigen::Matrix4d result = map_to_laser * laser_to_odom.matrix().cast<double>();
+        {
+            // std::lock_guard lock(mutex_);
+            std::lock_guard<std::mutex> lock(mutex_);
+            map_to_odom_.transform.translation.x = result(0, 3);
+            map_to_odom_.transform.translation.y = result(1, 3);
+            map_to_odom_.transform.translation.z = result(2, 3);
+
+            Eigen::Matrix3d rotation = result.block<3, 3>(0, 0);
+            q = Eigen::Quaterniond(rotation);
+
+            map_to_odom_.transform.rotation.w = q.w();
+            map_to_odom_.transform.rotation.x = q.x();
+            map_to_odom_.transform.rotation.y = q.y();
+            map_to_odom_.transform.rotation.z = q.z();
+            is_ready_ = true;
+
+            setTransform();
+        }
+    }
     
-    // cloud_in_是现在扫描输入的点云，initial_guess是设置的初始位姿
-    // cloud_in_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>)
-    ROS_INFO("pointcloud cloud_in_ size: %ld\n",cloud_in_->points.size());
-    Eigen::Matrix4d map_to_laser = multiAlignSync(cloud_in_, initial_guess);
-    if (!success_) {
-        // map_to_laser是配准修正后的机器人位移，initial_guess是初始坐标，也就是地图原点到机器人初始位置的位移
-        // 如果匹配不成功，
-        map_to_laser = initial_guess;
-        ROS_INFO("ICP failed!\n");
-    }
-
-    Eigen::Matrix4d laser_to_odom = Eigen::Matrix4d::Identity();
-    try {
-        // Get odom to laser transform
-        tf::StampedTransform transform;
-        // 尝试查找从激光帧到里程计帧的变换，超时时间为10秒
-        tf::TransformListener tf_listener_;
-        tf_listener_.waitForTransform(laser_frame_id_, range_odom_frame_id_, ros::Time(0), ros::Duration(10));
-        tf_listener_.lookupTransform(laser_frame_id_, range_odom_frame_id_, ros::Time(0), transform);
-        // RCLCPP_INFO(get_logger(), "%s", transform.header.frame_id.c_str());
-
-        Eigen::Vector3d t(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
-        tf::Quaternion q(transform.getRotation());
-        Eigen::Matrix3d rotation_matrix;
-        quaternionToEigenMatrix(q, rotation_matrix);
-        // laser_to_odom.prerotate(q);
-        // laser_to_odom.translate(t);
-        laser_to_odom.block<3, 3>(0, 0) = rotation_matrix;
-        laser_to_odom.block<3, 1>(0, 3) = t;
-    } catch (tf2::TransformException &ex) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        ROS_INFO("%s", ex.what());
-        is_ready_ = false;
-        return;
-    }
-    
-    Eigen::Matrix4d result = map_to_laser * laser_to_odom.matrix().cast<double>();
-    {
-        // std::lock_guard lock(mutex_);
-        std::lock_guard<std::mutex> lock(mutex_);
-        map_to_odom_.transform.translation.x = result(0, 3);
-        map_to_odom_.transform.translation.y = result(1, 3);
-        map_to_odom_.transform.translation.z = result(2, 3);
-
-        Eigen::Matrix3d rotation = result.block<3, 3>(0, 0);
-        q = Eigen::Quaterniond(rotation);
-
-        map_to_odom_.transform.rotation.w = q.w();
-        map_to_odom_.transform.rotation.x = q.x();
-        map_to_odom_.transform.rotation.y = q.y();
-        map_to_odom_.transform.rotation.z = q.z();
-        is_ready_ = true;
-
-        setTransform();
-    }
 }
 
 
