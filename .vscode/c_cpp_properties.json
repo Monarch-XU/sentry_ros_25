@@ -1,0 +1,29 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/hj/sentry_ros_25/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/hj/sentry_ros_25/src/hik_camera/include/**",
+        "/home/hj/sentry_ros_25/src/icp_registration/include/**",
+        "/home/hj/sentry_ros_25/src/laser_filters-noetic-devel/include/**",
+        "/home/hj/sentry_ros_25/src/livox_cloud_undistortion/include/**",
+        "/home/hj/sentry_ros_25/src/point_lio/include/**",
+        "/home/hj/sentry_ros_25/src/pointcloud_to_laserscan/include/**",
+        "/home/hj/sentry_ros_25/src/sentry_navigation/include/**",
+        "/home/hj/sentry_ros_25/src/simple_robot/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

@@ -2,7 +2,6 @@ file(REMOVE_RECURSE
   "/home/hj/sentry_ros_25/devel/lib/icp_registration/pointcloud_sub"
   "/home/hj/sentry_ros_25/devel/lib/icp_registration/pointcloud_sub.pdb"
   "CMakeFiles/pointcloud_sub.dir/src/pointcloud_sub.cpp.o"
-  "CMakeFiles/pointcloud_sub.dir/src/pointcloud_sub.cpp.o.d"
 )
 
 # Per-language clean rules from dependency scanning.

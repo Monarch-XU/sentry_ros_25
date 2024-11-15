@@ -2,7 +2,6 @@ file(REMOVE_RECURSE
   "/home/hj/sentry_ros_25/devel/lib/icp_registration/icp_node_test"
   "/home/hj/sentry_ros_25/devel/lib/icp_registration/icp_node_test.pdb"
   "CMakeFiles/icp_node_test.dir/src/icp_node_test.cpp.o"
-  "CMakeFiles/icp_node_test.dir/src/icp_node_test.cpp.o.d"
 )
 
 # Per-language clean rules from dependency scanning.

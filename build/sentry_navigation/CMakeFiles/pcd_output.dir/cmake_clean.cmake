@@ -2,7 +2,6 @@ file(REMOVE_RECURSE
   "/home/hj/sentry_ros_25/devel/lib/sentry_navigation/pcd_output"
   "/home/hj/sentry_ros_25/devel/lib/sentry_navigation/pcd_output.pdb"
   "CMakeFiles/pcd_output.dir/src/pcdfile_output.cpp.o"
-  "CMakeFiles/pcd_output.dir/src/pcdfile_output.cpp.o.d"
 )
 
 # Per-language clean rules from dependency scanning.

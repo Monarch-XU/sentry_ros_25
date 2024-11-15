@@ -37,11 +37,6 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "FALSE")
 endif()
 
-# Set default install directory permissions.
-if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/usr/bin/objdump")
-endif()
-
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   
       if (NOT EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}")
@@ -61,7 +56,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE PROGRAM FILES "/home/hj/sentry_ros_25/build/catkin_generated/installspace/_setup_util.py")
+file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE PROGRAM FILES "/home/hj/sentry_ros_25/build/catkin_generated/installspace/_setup_util.py")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -73,7 +68,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE PROGRAM FILES "/home/hj/sentry_ros_25/build/catkin_generated/installspace/env.sh")
+file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE PROGRAM FILES "/home/hj/sentry_ros_25/build/catkin_generated/installspace/env.sh")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -85,7 +80,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE FILE FILES
+file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE FILE FILES
     "/home/hj/sentry_ros_25/build/catkin_generated/installspace/setup.bash"
     "/home/hj/sentry_ros_25/build/catkin_generated/installspace/local_setup.bash"
     )
@@ -100,7 +95,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE FILE FILES
+file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE FILE FILES
     "/home/hj/sentry_ros_25/build/catkin_generated/installspace/setup.sh"
     "/home/hj/sentry_ros_25/build/catkin_generated/installspace/local_setup.sh"
     )
@@ -115,7 +110,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE FILE FILES
+file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE FILE FILES
     "/home/hj/sentry_ros_25/build/catkin_generated/installspace/setup.zsh"
     "/home/hj/sentry_ros_25/build/catkin_generated/installspace/local_setup.zsh"
     )
@@ -130,7 +125,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE FILE FILES "/home/hj/sentry_ros_25/build/catkin_generated/installspace/.rosinstall")
+file(INSTALL DESTINATION "/home/hj/sentry_ros_25/install" TYPE FILE FILES "/home/hj/sentry_ros_25/build/catkin_generated/installspace/.rosinstall")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
