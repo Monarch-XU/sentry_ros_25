@@ -987,19 +987,6 @@ geometry_msgs_generate_messages_lisp/fast:
 .PHONY : geometry_msgs_generate_messages_lisp/fast
 
 #=============================================================================
-# Target rules for targets named icp_node_test2
-
-# Build rule for target.
-icp_node_test2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 icp_node_test2
-.PHONY : icp_node_test2
-
-# fast build rule for target.
-icp_node_test2/fast:
-	$(MAKE) -f icp_registration/CMakeFiles/icp_node_test2.dir/build.make icp_registration/CMakeFiles/icp_node_test2.dir/build
-.PHONY : icp_node_test2/fast
-
-#=============================================================================
 # Target rules for targets named actionlib_msgs_generate_messages_nodejs
 
 # Build rule for target.
@@ -1517,7 +1504,6 @@ help:
 	@echo "... std_srvs_generate_messages_py"
 	@echo "... roscpp_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_lisp"
-	@echo "... icp_node_test2"
 	@echo "... actionlib_msgs_generate_messages_nodejs"
 	@echo "... actionlib_msgs_generate_messages_lisp"
 	@echo "... tf_generate_messages_py"

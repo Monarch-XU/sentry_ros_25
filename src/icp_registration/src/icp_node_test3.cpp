@@ -72,8 +72,8 @@ bool is_ready_;
 bool first_scan_;
 
 
-void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr msg);
-void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStamped msg);
+void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg);
+void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStamped& msg);
 static PointCloudXYZIN::Ptr addNorm(PointCloudXYZI::Ptr cloud);
 Eigen::Matrix4d multiAlignSync(PointCloudXYZI::Ptr source, const Eigen::Matrix4d &init_guess);
 void quaternionToEigenMatrix(const tf::Quaternion& q, Eigen::Matrix3d& rotation_matrix);
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])  {
             // tf_broadcaster_.sendTransform(map_to_odom_);
             tf_broadcaster_.sendTransform(tf::StampedTransform(map_to_odom_transform, 
                 ros::Time::now(), map_frame_id_, odom_frame_id_));
-            printTfInformation();
+            // printTfInformation();
             rate.sleep();
         }
     });
@@ -229,7 +229,7 @@ void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr msg) {
     first_scan_ = false;
 }
 
-void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStamped msg){
+void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStamped& msg){
     ROS_INFO("get geometry msg\n");
 
     // Set the initial pose

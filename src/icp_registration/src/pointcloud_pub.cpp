@@ -11,7 +11,7 @@
 
 int main(int argc, char** argv) {
 
-    std::string pcd_file_path = "PCD/205lib.pcd";
+    std::string pcd_file_path = "/home/hj/sentry_ros_25/PCD/205lib.pcd";
     std::string topic_name = "/livox/points";
 
     // 初始化ROS节点
@@ -19,6 +19,7 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
 
     // 创建发布者
+    // sensor_msgs::PointCloud2ConstPtr msg
     ros::Publisher pub = nh.advertise<sensor_msgs::PointCloud2>(topic_name, 1);
 
     // 读取PCD文件
