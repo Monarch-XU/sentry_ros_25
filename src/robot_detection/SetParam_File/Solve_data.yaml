@@ -83,7 +83,7 @@ Barrel_offset_angle: !!opencv-matrix
   rows: 3
   cols: 1
   dt: d
-  data: [ 0 ,0.8,-1 ]
+  data: [ 0 ,0.5,1.2 ]
 
 
 #595 6mm

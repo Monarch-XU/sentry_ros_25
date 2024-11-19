@@ -3,6 +3,7 @@
 #include <mutex>
 #include <thread>
 #include <functional>
+#include <string>
 
 // ROS1
 #include "ros/ros.h"
@@ -24,14 +25,14 @@
 #include <pcl/features/normal_3d.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/pcd_io.h> // 如果你需要从PCD文件加载点云
+#include <pcl/io/ply_io.h>
+#include <pcl/console/time.h>   // TicToc
 
 // Eigen
 #include<Eigen/Dense>
 
-// #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include <sensor_msgs/PointCloud2.h>
-
 #include <boost/shared_ptr.hpp>
 
 using PointType = pcl::PointXYZINormal;
@@ -56,6 +57,8 @@ PointCloudXYZI::Ptr cloud_in_; // cloud_in_是当下雷达扫描到的点云
 PointCloudXYZIN::Ptr rough_map_; // 原始地图点云粗处理点云
 PointCloudXYZIN::Ptr refine_map_; // 原始地图点云精处理点云
 
+PointCloudXYZIN::Ptr align_point; // 配准后的点云
+
 geometry_msgs::TransformStamped map_to_odom_;
 tf::Transform map_to_odom_transform;
 std::string pcd_path_;
@@ -69,6 +72,7 @@ double yaw_offset_;
 double yaw_resolution_;
 geometry_msgs::Pose initial_pose_;
 bool is_ready_;
+bool pointcloud_ready;
 
 bool first_scan_;
 
@@ -86,10 +90,13 @@ void setTransform();
 void pointCloudCallback_test(const sensor_msgs::PointCloud2ConstPtr& msg);
 // void pclViewer();
 void showPointCloud(PointCloudXYZI::Ptr cloud, std::string name, int B, int G, int R);
+void showPointCloud(PointCloudXYZIN::Ptr cloud, std::string name, int B, int G, int R);
 // void printTfInformation();
 
+void pclViewer(PointCloudXYZI::Ptr prior_point_cloud, PointCloudXYZI::Ptr pointcloud_before_tf, PointCloudXYZIN::Ptr pointcloud_after_tf);
 
 
+#define SINGLE_RUN
 
 int main(int argc, char *argv[])  {  
     ros::init(argc,argv,"icp_node_test3");  
@@ -99,6 +106,7 @@ int main(int argc, char *argv[])  {
     map_to_odom_transform.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
     map_to_odom_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
 
+    pointcloud_ready = false;
     first_scan_ = true;
     is_ready_ = false;
 
@@ -127,7 +135,7 @@ int main(int argc, char *argv[])  {
     cloud_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>); // 原始点云
     reader.read(pcd_path_, *cloud_);
 
-    showPointCloud(cloud_, "cloud_", 0, 255, 0);
+    // showPointCloud(cloud_, "cloud_", 0, 255, 0);
 
     // 将读取的点云数据作为输入传递给精细体素滤波器，并应用滤波器进行下采样
     voxel_refine_filter_.setInputCloud(cloud_);
@@ -143,8 +151,10 @@ int main(int argc, char *argv[])  {
     // 复制精细处理后的点云到粗糙处理点云(不复制法线)
     pcl::copyPointCloud(*refine_map_, *point_rough);
 
-    showPointCloud(point_rough, "point_rough", 60, 0, 255);
+    // showPointCloud(point_rough, "point_rough", 60, 0, 255);
 
+    nh.param<int>("rough_iter_", rough_iter_, 1);
+    nh.param<int>("refine_iter_", refine_iter_, 1);
     /*调用voxel_rough_filter_的filter方法，对point_rough中的点进行下采样处理，并将结果存储在filterd_point_rough中。
     经过这一步，filterd_point_rough中的点数量会减少，点的分布会变得更加稀疏，但整体上仍然保留了原始点云的形状特征。*/
     voxel_rough_filter_.setInputCloud(point_rough);
@@ -159,6 +169,9 @@ int main(int argc, char *argv[])  {
     icp_refine_.setMaximumIterations(refine_iter_);
     // 设置精细ICP/精细配准器的目标点云为refine_map_
     icp_refine_.setInputTarget(refine_map_);
+
+    ROS_INFO("rough_iter_:%d",rough_iter_);
+    ROS_INFO("refine_iter_:%d",refine_iter_);
 
     // 打印点云大小
     ROS_INFO("PCD大小： %ld, %ld", refine_map_->size(), rough_map_->size());
@@ -205,6 +218,24 @@ int main(int argc, char *argv[])  {
     tf_publisher_thread_ = std::make_unique<std::thread>([]() {
         ros::Rate rate(100);
         tf::TransformBroadcaster tf_broadcaster_;
+#ifdef SINGLE_RUN
+        tf_broadcaster_.sendTransform(tf::StampedTransform(map_to_odom_transform, 
+            ros::Time::now(), map_frame_id_, odom_frame_id_));
+
+
+        // PointCloudXYZI::Ptr cloud_; // 原始地图点云
+        // PointCloudXYZI::Ptr cloud_in_; // cloud_in_是当下雷达扫描到的点云
+        // PointCloudXYZIN::Ptr align_point; // 配准后的点云
+        // while(!is_ready_ || !pointcloud_ready){
+        //     ROS_INFO("WAIT FOR POINTCLOUD ...\n");
+        // }
+
+        ros::Duration(5).sleep();
+
+        pclViewer(cloud_, cloud_in_, align_point);
+
+
+#else
         while (ros::ok()) {
             // 通过tf_broadcaster_对象发送TF变换信息到TF树中
             // tf_broadcaster_.sendTransform(map_to_odom_);
@@ -213,6 +244,7 @@ int main(int argc, char *argv[])  {
             // printTfInformation();
             rate.sleep();
         }
+#endif
     });
     ros::spin();
 
@@ -239,18 +271,10 @@ void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr& msg) {
     pose_msg.pose.pose = initial_pose_;
     first_scan_ = false;
     initialPoseCallback(pose_msg);
+
+    pointcloud_ready = true;
 }
 
-void pointCloudCallback_test(const sensor_msgs::PointCloud2ConstPtr& msg) {
-    // 计算点的数量，对于PointCloud2，点的数量是height * width（除非height为1，表示无序点云）
-    size_t pointCount = msg->height * msg->width;
-    cloud_in_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
-    pcl::fromROSMsg(*msg, *cloud_in_);
-    // 打印点云大小
-    ROS_INFO("Received PointCloud2 with %lu points.", pointCount);
-    ROS_INFO("pointcloud size: %ld\n",cloud_in_->points.size());
-    
-}
 
 void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStamped msg){
     if(first_scan_ == false){
@@ -326,6 +350,8 @@ void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStamped msg){
             setTransform();
         }
     }
+
+    is_ready_ = true;
     
 }
 
@@ -378,7 +404,10 @@ Eigen::Matrix4d multiAlignSync(PointCloudXYZI::Ptr source, const Eigen::Matrix4d
 
     PointCloudXYZIN::Ptr rough_source_norm = addNorm(rough_source);
     PointCloudXYZIN::Ptr refine_source_norm = addNorm(refine_source);
-    PointCloudXYZIN::Ptr align_point(new PointCloudXYZIN);
+
+    // PointCloudXYZIN::Ptr align_point(new PointCloudXYZIN);
+    align_point = pcl::PointCloud<pcl::PointXYZINormal>::Ptr(new pcl::PointCloud<pcl::PointXYZINormal>);
+    
 
     Eigen::Matrix4f best_rough_transform;
     double best_rough_score = 10.0;
@@ -402,6 +431,8 @@ Eigen::Matrix4d multiAlignSync(PointCloudXYZI::Ptr source, const Eigen::Matrix4d
     icp_refine_.setInputSource(refine_source_norm);
     icp_refine_.align(*align_point, best_rough_transform);
     score_ = icp_refine_.getFitnessScore();
+
+    // showPointCloud(align_point,"align_point",255,0,0);
 
     if (!icp_refine_.hasConverged()) return Eigen::Matrix4d::Zero();
     if (score_ > thresh_) return Eigen::Matrix4d::Zero();
@@ -454,20 +485,71 @@ void setTransform(){
 }
 
 
-// void printTfInformation(){
-//     // 打印tf信息
-//     tf::Vector3 transV = map_to_odom_transform.getOrigin();
-//     double xx = transV.x();
-//     double yy = transV.y();
-//     double zz = transV.z();
-//     tf::Quaternion rotation = map_to_odom_transform.getRotation();
-//     double qw = rotation.w();
-//     double qx = rotation.x();
-//     double qy = rotation.y();
-//     double qz = rotation.z();
 
-//     ROS_INFO("map to odom:  x=%.1f y=%.1f z=%.1f\n",xx,yy,zz);
-// }
+
+// // using PointType = pcl::PointXYZINormal;
+// // using PointCloudXYZI = pcl::PointCloud<pcl::PointXYZI>;
+// // using PointCloudXYZIN = pcl::PointCloud<pcl::PointXYZINormal>;
+// // PointCloudXYZI::Ptr cloud_in_; // cloud_in_是当下雷达扫描到的点云
+// // PointCloudXYZIN::Ptr rough_map_; // 原始地图点云粗处理点云
+// // PointCloudXYZIN::Ptr refine_map_; // 原始地图点云精处理点云
+
+
+void pclViewer(PointCloudXYZI::Ptr prior_point_cloud, PointCloudXYZI::Ptr pointcloud_before_tf, PointCloudXYZIN::Ptr pointcloud_after_tf){
+    // Visualization
+    pcl::visualization::PCLVisualizer viewer ("ICP demo");
+    // Create two vertically separated viewports
+    // 创建两个垂直分离的视图
+    int v1 (0);
+    int v2 (1);
+    viewer.createViewPort (0.0, 0.0, 0.5, 1.0, v1);
+    viewer.createViewPort (0.5, 0.0, 1.0, 1.0, v2);
+
+    // The color we will be using
+    float bckgr_gray_level = 0.0;  // Black
+    float txt_gray_lvl = 1.0 - bckgr_gray_level;
+
+    // Original point cloud is white
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> cloud_in_color_h (prior_point_cloud, (int) 255 * txt_gray_lvl, (int) 255 * txt_gray_lvl,
+                                                                               (int) 255 * txt_gray_lvl);
+    viewer.addPointCloud (prior_point_cloud, cloud_in_color_h, "cloud_in_v1", v1);
+    viewer.addPointCloud (prior_point_cloud, cloud_in_color_h, "cloud_in_v2", v2);
+
+    // Transformed point cloud is green
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> cloud_tr_color_h (pointcloud_before_tf, 180, 30, 30);
+    viewer.addPointCloud (pointcloud_before_tf, cloud_tr_color_h, "cloud_tr_v1", v1);
+
+    // ICP aligned point cloud is red
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZINormal> cloud_icp_color_h (pointcloud_after_tf, 20, 180, 20);
+    viewer.addPointCloud (pointcloud_after_tf, cloud_icp_color_h, "cloud_icp_v2", v2);
+
+    // Adding text descriptions in each viewport
+    viewer.addText ("White: Original point cloud\nRed: Matrix transformed point cloud", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_1", v1);
+    viewer.addText ("White: Original point cloud\nGreen: ICP aligned point cloud", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_2", v2);
+
+    // std::stringstream ss;
+    // ss << iterations;
+    // std::string iterations_cnt = "ICP iterations = " + ss.str ();
+    // viewer.addText (iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt", v2);
+
+    // Set background color
+    viewer.setBackgroundColor (bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v1);
+    viewer.setBackgroundColor (bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v2);
+
+    // Set camera position and orientation
+    viewer.setCameraPosition (-3.68332, 2.94092, 5.71266, 0.289847, 0.921947, -0.256907, 0);
+    viewer.setSize (1280, 1024);  // Visualiser window size
+
+    // Register keyboard callback :
+    // viewer.registerKeyboardCallback (&keyboardEventOccurred, (void*) NULL);
+    while (!viewer.wasStopped())
+    {
+        viewer.spinOnce(100); // 100ms的延迟
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 或者使用PCL的sleep函数
+    }
+
+}
+
 
 void showPointCloud(PointCloudXYZI::Ptr cloud, std::string name, int R, int G, int B){
     pcl::PointXYZI point;
@@ -549,66 +631,24 @@ void showPointCloud(PointCloudXYZIN::Ptr cloud, std::string name, int R, int G, 
 
 
 
-
-
-
-// // typedef pcl::PointXYZ PointT;
-// // typedef pcl::PointCloud<PointT> PointCloudT;
-// // PointCloudT = PointCloud<pcl::PointXYZ>
-
-// // using PointType = pcl::PointXYZINormal;
-// // using PointCloudXYZI = pcl::PointCloud<pcl::PointXYZI>;
-// // using PointCloudXYZIN = pcl::PointCloud<pcl::PointXYZINormal>;
-// // PointCloudXYZI::Ptr cloud_in_; // cloud_in_是当下雷达扫描到的点云
-// // PointCloudXYZIN::Ptr rough_map_; // 原始地图点云粗处理点云
-// // PointCloudXYZIN::Ptr refine_map_; // 原始地图点云精处理点云
-
-// void pclViewer(){
-//     // Visualization
-//     pcl::visualization::PCLVisualizer viewer ("ICP demo");
-//     // Create two vertically separated viewports
-//     // 创建两个垂直分离的视图
-//     int v1 (0);
-//     int v2 (1);
-//     viewer.createViewPort (0.0, 0.0, 0.5, 1.0, v1);
-//     viewer.createViewPort (0.5, 0.0, 1.0, 1.0, v2);
-
-//     // The color we will be using
-//     float bckgr_gray_level = 0.0;  // Black
-//     float txt_gray_lvl = 1.0 - bckgr_gray_level;
-
-//     // Original point cloud is white
-//     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZIN> cloud_in_color_h (cloud_in, (int) 255 * txt_gray_lvl, (int) 255 * txt_gray_lvl,
-//                                                                                (int) 255 * txt_gray_lvl);
-//     viewer.addPointCloud (cloud_in, cloud_in_color_h, "cloud_in_v1", v1);
-//     viewer.addPointCloud (cloud_in, cloud_in_color_h, "cloud_in_v2", v2);
-
-//     // Transformed point cloud is green
-//     pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_tr_color_h (cloud_tr, 20, 180, 20);
-//     viewer.addPointCloud (cloud_tr, cloud_tr_color_h, "cloud_tr_v1", v1);
-
-//     // ICP aligned point cloud is red
-//     pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h (cloud_icp, 180, 20, 20);
-//     viewer.addPointCloud (cloud_icp, cloud_icp_color_h, "cloud_icp_v2", v2);
-
-//     // Adding text descriptions in each viewport
-//     viewer.addText ("White: Original point cloud\nGreen: Matrix transformed point cloud", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_1", v1);
-//     viewer.addText ("White: Original point cloud\nRed: ICP aligned point cloud", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_2", v2);
-
-//     std::stringstream ss;
-//     ss << iterations;
-//     std::string iterations_cnt = "ICP iterations = " + ss.str ();
-//     viewer.addText (iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt", v2);
-
-//     // Set background color
-//     viewer.setBackgroundColor (bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v1);
-//     viewer.setBackgroundColor (bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v2);
-
-//     // Set camera position and orientation
-//     viewer.setCameraPosition (-3.68332, 2.94092, 5.71266, 0.289847, 0.921947, -0.256907, 0);
-//     viewer.setSize (1280, 1024);  // Visualiser window size
-
-//     // Register keyboard callback :
-//     viewer.registerKeyboardCallback (&keyboardEventOccurred, (void*) NULL);
-
+// pcl::PointCloud<pcl::PointXYZI> PtN2PtI(const pcl::PointCloud<pcl::PointXYZINormal>& input_cloud)
+// {
+//     // 创建并初始化返回的点云
+//     pcl::PointCloud<pcl::PointXYZI> output_cloud;
+//     output_cloud.width = input_cloud.width;
+//     output_cloud.height = input_cloud.height;
+//     output_cloud.is_dense = input_cloud.is_dense;
+//     output_cloud.points.resize(input_cloud.points.size());
+ 
+//     // 遍历输入点云，并复制所需字段到输出点云
+//     for (size_t i = 0; i < input_cloud.points.size(); ++i)
+//     {
+//         output_cloud.points[i].x = input_cloud.points[i].x;
+//         output_cloud.points[i].y = input_cloud.points[i].y;
+//         output_cloud.points[i].z = input_cloud.points[i].z;
+//         output_cloud.points[i].intensity = input_cloud.points[i].intensity;
+//     }
+ 
+//     // 返回点云（注意：这里返回的是局部对象的副本，可能会导致性能问题如果点云很大）
+//     return output_cloud;
 // }

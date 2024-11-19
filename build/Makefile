@@ -311,6 +311,19 @@ tf_pub/fast:
 .PHONY : tf_pub/fast
 
 #=============================================================================
+# Target rules for targets named pointcloud_sub
+
+# Build rule for target.
+pointcloud_sub: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 pointcloud_sub
+.PHONY : pointcloud_sub
+
+# fast build rule for target.
+pointcloud_sub/fast:
+	$(MAKE) -f icp_registration/CMakeFiles/pointcloud_sub.dir/build.make icp_registration/CMakeFiles/pointcloud_sub.dir/build
+.PHONY : pointcloud_sub/fast
+
+#=============================================================================
 # Target rules for targets named icp_node
 
 # Build rule for target.
@@ -1452,6 +1465,7 @@ help:
 	@echo "... gtest"
 	@echo "... pointcloud_pub"
 	@echo "... tf_pub"
+	@echo "... pointcloud_sub"
 	@echo "... icp_node"
 	@echo "... tf2_msgs_generate_messages_nodejs"
 	@echo "... tf2_msgs_generate_messages_lisp"

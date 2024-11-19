@@ -47,7 +47,7 @@ bool Smooth::update(Eigen::Vector3d position,Eigen::Vector3d &Smooth) {
         for (int i = 0; i < max_size; ++i) {
             x += Data_info[i][0];
             y += Data_info[i][1];
-           z += Data_info[i][2];
+           z += Data_info[i][2];,
         }
         x /=  max_size;
         y /=  max_size;

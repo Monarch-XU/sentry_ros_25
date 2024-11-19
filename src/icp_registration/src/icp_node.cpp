@@ -234,6 +234,7 @@ Eigen::Matrix4d multiAlignSync(PointCloudXYZI::Ptr source, const Eigen::Matrix4d
     ROS_INFO("pointcloud source size: %ld\n",source->points.size());
     if(source->points.size()<=0){
         ROS_INFO("PointCloudXYZI::Ptr source IS EMPTY !!!\n");
+        return Eigen::Matrix4d::Zero();
     }
     voxel_rough_filter_.setInputCloud(source);
     voxel_rough_filter_.filter(*rough_source);

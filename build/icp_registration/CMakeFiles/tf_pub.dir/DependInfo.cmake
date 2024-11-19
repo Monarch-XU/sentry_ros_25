@@ -13,6 +13,8 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
   "ROSCONSOLE_BACKEND_LOG4CXX"
   "ROS_BUILD_SHARED_LIBS=1"
   "ROS_PACKAGE_NAME=\"icp_registration\""
+  "vtkRenderingContext2D_AUTOINIT=1(vtkRenderingContextOpenGL2)"
+  "vtkRenderingCore_AUTOINIT=3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL2)"
   )
 
 # The include file search paths:

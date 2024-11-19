@@ -148,90 +148,90 @@ void callback(const sensor_msgs::ImageConstPtr &src_msg, const robot_msgs::visio
     // 弹道速度(后面改成发过来的弹道数据) | 有点问题
     AS.bullet_speed = 25;
 
-    // 整车观测
-    // bool AO_OK = (Tracker.tracker_state == TRACKING) && Tracker.OB_Track[Tracker.tracking_id].is_initialized;
-    // // 开始拟合圆心
-    // double OK = false;
-    // if(AO_OK) {
-    //     double angle =  AO.spin_angle*(180.0f/CV_PI);
-    //     // 左右角度[以逆时针为基准]
-    //     // -30 -45
-    //     double select_angle_left = -20;
-    //     double select_angle_right = -20;
+    整车观测
+    bool AO_OK = (Tracker.tracker_state == TRACKING) && Tracker.OB_Track[Tracker.tracking_id].is_initialized;
+    // 开始拟合圆心
+    double OK = false;
+    if(AO_OK) {
+        double angle =  AO.spin_angle*(180.0f/CV_PI);
+        // 左右角度[以逆时针为基准]
+        // -30 -45
+        double select_angle_left = -20;
+        double select_angle_right = -20;
     
-    //     AO.Angle_Speed = Tracker.Angle_Speed; 
-    //     AO.Spin_State = Tracker.Spin_State(); 
-    //     AO.Center_fitting(Tracker.enemy_armor,Tracker.OB[Tracker.tracking_id].center_Z,Tracker.OB[Tracker.tracking_id],Tracker.OB_Track[Tracker.tracking_id]);
+        AO.Angle_Speed = Tracker.Angle_Speed; 
+        AO.Spin_State = Tracker.Spin_State(); 
+        AO.Center_fitting(Tracker.enemy_armor,Tracker.OB[Tracker.tracking_id].center_Z,Tracker.OB[Tracker.tracking_id],Tracker.OB_Track[Tracker.tracking_id]);
 
-    //     // 角度设置以逆时针为主,角度为负 | 陀螺时yaw角度为左正右负
-    //     // 不再进行速度阈值的判断,直接通过角度的判断进行击打
-    //     // 逆时针[L]
-    //     if(Tracker.Spin_State() == COUNTER_CLOCKWISE){
-    //         if(AO.spin_angle*(180.0f/CV_PI) < select_angle_left && AO.spin_angle*(180.0f/CV_PI) > select_angle_right){
-    //             Eigen::Vector3d rpy = AS.Barrel_Solve(AO.spin_Aromor);
-    //             OK = true;
-    //             Tracker.Solve_pitch = rpy[1];
-    //             Tracker.Solve_yaw = rpy[2];
-    //         }
-    //         else if(AO.Left_Armor_angle < select_angle_left && AO.Left_Armor_angle > select_angle_right){
-    //             Eigen::Vector3d rpy = AS.Barrel_Solve(AO.Left_Armor);
-    //             OK = true;
-    //             Tracker.Solve_pitch = rpy[1];
-    //             Tracker.Solve_yaw = rpy[2];
-    //         } 
-    //         else if(AO.O_Armor_angle < select_angle_left && AO.O_Armor_angle > select_angle_right){
-    //             Eigen::Vector3d rpy = AS.Barrel_Solve(AO.O_Armor);
-    //             OK = true;
-    //             Tracker.Solve_pitch = rpy[1];
-    //             Tracker.Solve_yaw = rpy[2];
-    //         }
-    //         // 固定点位需要修改
-    //         else {
-    //             // Eigen::Vector3d rpy = AS.Barrel_Solve(AO.left_target);
-    //             // Tracker.Solve_pitch = rpy[1];
-    //             // Tracker.Solve_yaw = rpy[2];
-    //             Tracker.Solve_pitch = Tracker.AS.Robot_msg.Controller_pitch;
-    //             Tracker.Solve_yaw = Tracker.AS.Robot_msg.Controller_yaw;
-    //         }
-    //     }
-    //     // 顺时针[R] 
-    //     else if (Tracker.Spin_State() == CLOCKWISE)
-    //     {   // 15 20
-    //         if(AO.spin_angle*(180.0f/CV_PI) > -select_angle_left && AO.spin_angle*(180.0f/CV_PI) < -select_angle_right){
-    //             Eigen::Vector3d rpy = AS.Barrel_Solve(AO.spin_Aromor);
-    //             OK = true;
-    //             Tracker.Solve_pitch = rpy[1];
-    //             Tracker.Solve_yaw = rpy[2];
-    //         }
-    //         if(AO.Right_Armor_angle > -select_angle_left && AO.Right_Armor_angle < -select_angle_right){
-    //             Eigen::Vector3d rpy = AS.Barrel_Solve(AO.Right_Armor);
-    //             OK = true;
-    //             Tracker.Solve_pitch = rpy[1];
-    //             Tracker.Solve_yaw = rpy[2];
-    //         } 
-    //         else if(AO.O_Armor_angle > -select_angle_left && AO.O_Armor_angle < -select_angle_right){
-    //             Eigen::Vector3d rpy = AS.Barrel_Solve(AO.O_Armor);
-    //             OK = true;
-    //             Tracker.Solve_pitch = rpy[1];
-    //             Tracker.Solve_yaw = rpy[2];
-    //         }
-    //         // 固定点位需要修改
-    //         else {
-    //             Eigen::Vector3d rpy = AS.Barrel_Solve(AO.right_target);
-    //             Tracker.Solve_pitch = rpy[1];
-    //             Tracker.Solve_yaw = rpy[2];
-    //             // Tracker.Solve_pitch = Tracker.AS.Robot_msg.Controller_pitch;
-    //             // Tracker.Solve_yaw = Tracker.AS.Robot_msg.Controller_yaw;
-    //         }
-    //     }
-    //     else{
-    //         // 退出陀螺模式
-    //         Tracker.Angle_Speed = 0;
-    //     }
+        // 角度设置以逆时针为主,角度为负 | 陀螺时yaw角度为左正右负
+        // 不再进行速度阈值的判断,直接通过角度的判断进行击打
+        // 逆时针[L]
+        if(Tracker.Spin_State() == COUNTER_CLOCKWISE){
+            if(AO.spin_angle*(180.0f/CV_PI) < select_angle_left && AO.spin_angle*(180.0f/CV_PI) > select_angle_right){
+                Eigen::Vector3d rpy = AS.Barrel_Solve(AO.spin_Aromor);
+                OK = true;
+                Tracker.Solve_pitch = rpy[1];
+                Tracker.Solve_yaw = rpy[2];
+            }
+            else if(AO.Left_Armor_angle < select_angle_left && AO.Left_Armor_angle > select_angle_right){
+                Eigen::Vector3d rpy = AS.Barrel_Solve(AO.Left_Armor);
+                OK = true;
+                Tracker.Solve_pitch = rpy[1];
+                Tracker.Solve_yaw = rpy[2];
+            } 
+            else if(AO.O_Armor_angle < select_angle_left && AO.O_Armor_angle > select_angle_right){
+                Eigen::Vector3d rpy = AS.Barrel_Solve(AO.O_Armor);
+                OK = true;
+                Tracker.Solve_pitch = rpy[1];
+                Tracker.Solve_yaw = rpy[2];
+            }
+            // 固定点位需要修改
+            else {
+                // Eigen::Vector3d rpy = AS.Barrel_Solve(AO.left_target);
+                // Tracker.Solve_pitch = rpy[1];
+                // Tracker.Solve_yaw = rpy[2];
+                Tracker.Solve_pitch = Tracker.AS.Robot_msg.Controller_pitch;
+                Tracker.Solve_yaw = Tracker.AS.Robot_msg.Controller_yaw;
+            }
+        }
+        // 顺时针[R] 
+        else if (Tracker.Spin_State() == CLOCKWISE)
+        {   // 15 20
+            if(AO.spin_angle*(180.0f/CV_PI) > -select_angle_left && AO.spin_angle*(180.0f/CV_PI) < -select_angle_right){
+                Eigen::Vector3d rpy = AS.Barrel_Solve(AO.spin_Aromor);
+                OK = true;
+                Tracker.Solve_pitch = rpy[1];
+                Tracker.Solve_yaw = rpy[2];
+            }
+            if(AO.Right_Armor_angle > -select_angle_left && AO.Right_Armor_angle < -select_angle_right){
+                Eigen::Vector3d rpy = AS.Barrel_Solve(AO.Right_Armor);
+                OK = true;
+                Tracker.Solve_pitch = rpy[1];
+                Tracker.Solve_yaw = rpy[2];
+            } 
+            else if(AO.O_Armor_angle > -select_angle_left && AO.O_Armor_angle < -select_angle_right){
+                Eigen::Vector3d rpy = AS.Barrel_Solve(AO.O_Armor);
+                OK = true;
+                Tracker.Solve_pitch = rpy[1];
+                Tracker.Solve_yaw = rpy[2];
+            }
+            // 固定点位需要修改
+            else {
+                Eigen::Vector3d rpy = AS.Barrel_Solve(AO.right_target);
+                Tracker.Solve_pitch = rpy[1];
+                Tracker.Solve_yaw = rpy[2];
+                // Tracker.Solve_pitch = Tracker.AS.Robot_msg.Controller_pitch;
+                // Tracker.Solve_yaw = Tracker.AS.Robot_msg.Controller_yaw;
+            }
+        }
+        else{
+            // 退出陀螺模式
+            Tracker.Angle_Speed = 0;
+        }
             
-    //     cv::putText(src,"OK: "+ std::to_string(OK),cv::Point(0,100),cv::FONT_HERSHEY_SIMPLEX, 1,cv::Scalar(255, 255, 0),2,3);
-    //     // if(AO.Fit_OK) {AO.ArmorObserve_show(AO.Smooth_position,Tracker.OB[Tracker.tracking_id],Tracker.OB_Track[Tracker.tracking_id]);}
-    // }
+        cv::putText(src,"OK: "+ std::to_string(OK),cv::Point(0,100),cv::FONT_HERSHEY_SIMPLEX, 1,cv::Scalar(255, 255, 0),2,3);
+        // if(AO.Fit_OK) {AO.ArmorObserve_show(AO.Smooth_position,Tracker.OB[Tracker.tracking_id],Tracker.OB_Track[Tracker.tracking_id]);}
+    }
 
  
 /////////////////////////////////////////////前哨站//////////////////////////////////////////////

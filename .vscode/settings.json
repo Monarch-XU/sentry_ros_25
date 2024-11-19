@@ -69,6 +69,12 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
+<<<<<<< HEAD
+        "core": "cpp",
+        "numericaldiff": "cpp",
+        "specialfunctions": "cpp"
+    }
+=======
         "hash_map": "cpp",
         "hash_set": "cpp"
     },
@@ -80,4 +86,5 @@
         "/home/hj/sentry_ros_25/devel/lib/python3/dist-packages",
         "/opt/ros/noetic/lib/python3/dist-packages"
     ]
+>>>>>>> b56f9508058413253745fc0b029cec192e15333c
 }

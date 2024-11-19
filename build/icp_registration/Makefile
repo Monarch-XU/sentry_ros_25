@@ -198,6 +198,21 @@ tf_pub/fast:
 .PHONY : tf_pub/fast
 
 # Convenience name for target.
+icp_registration/CMakeFiles/pointcloud_sub.dir/rule:
+	cd /home/hj/sentry_ros_25/build && $(MAKE) -f CMakeFiles/Makefile2 icp_registration/CMakeFiles/pointcloud_sub.dir/rule
+.PHONY : icp_registration/CMakeFiles/pointcloud_sub.dir/rule
+
+# Convenience name for target.
+pointcloud_sub: icp_registration/CMakeFiles/pointcloud_sub.dir/rule
+
+.PHONY : pointcloud_sub
+
+# fast build rule for target.
+pointcloud_sub/fast:
+	cd /home/hj/sentry_ros_25/build && $(MAKE) -f icp_registration/CMakeFiles/pointcloud_sub.dir/build.make icp_registration/CMakeFiles/pointcloud_sub.dir/build
+.PHONY : pointcloud_sub/fast
+
+# Convenience name for target.
 icp_registration/CMakeFiles/icp_node.dir/rule:
 	cd /home/hj/sentry_ros_25/build && $(MAKE) -f CMakeFiles/Makefile2 icp_registration/CMakeFiles/icp_node.dir/rule
 .PHONY : icp_registration/CMakeFiles/icp_node.dir/rule
@@ -1595,6 +1610,33 @@ src/pointcloud_pub.cpp.s:
 	cd /home/hj/sentry_ros_25/build && $(MAKE) -f icp_registration/CMakeFiles/pointcloud_pub.dir/build.make icp_registration/CMakeFiles/pointcloud_pub.dir/src/pointcloud_pub.cpp.s
 .PHONY : src/pointcloud_pub.cpp.s
 
+src/pointcloud_sub.o: src/pointcloud_sub.cpp.o
+
+.PHONY : src/pointcloud_sub.o
+
+# target to build an object file
+src/pointcloud_sub.cpp.o:
+	cd /home/hj/sentry_ros_25/build && $(MAKE) -f icp_registration/CMakeFiles/pointcloud_sub.dir/build.make icp_registration/CMakeFiles/pointcloud_sub.dir/src/pointcloud_sub.cpp.o
+.PHONY : src/pointcloud_sub.cpp.o
+
+src/pointcloud_sub.i: src/pointcloud_sub.cpp.i
+
+.PHONY : src/pointcloud_sub.i
+
+# target to preprocess a source file
+src/pointcloud_sub.cpp.i:
+	cd /home/hj/sentry_ros_25/build && $(MAKE) -f icp_registration/CMakeFiles/pointcloud_sub.dir/build.make icp_registration/CMakeFiles/pointcloud_sub.dir/src/pointcloud_sub.cpp.i
+.PHONY : src/pointcloud_sub.cpp.i
+
+src/pointcloud_sub.s: src/pointcloud_sub.cpp.s
+
+.PHONY : src/pointcloud_sub.s
+
+# target to generate assembly for a file
+src/pointcloud_sub.cpp.s:
+	cd /home/hj/sentry_ros_25/build && $(MAKE) -f icp_registration/CMakeFiles/pointcloud_sub.dir/build.make icp_registration/CMakeFiles/pointcloud_sub.dir/src/pointcloud_sub.cpp.s
+.PHONY : src/pointcloud_sub.cpp.s
+
 src/tf_pub.o: src/tf_pub.cpp.o
 
 .PHONY : src/tf_pub.o
@@ -1635,6 +1677,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... pointcloud_pub"
 	@echo "... tf_pub"
+	@echo "... pointcloud_sub"
 	@echo "... icp_node"
 	@echo "... tf2_msgs_generate_messages_nodejs"
 	@echo "... tf2_msgs_generate_messages_lisp"
@@ -1735,6 +1778,9 @@ help:
 	@echo "... src/pointcloud_pub.o"
 	@echo "... src/pointcloud_pub.i"
 	@echo "... src/pointcloud_pub.s"
+	@echo "... src/pointcloud_sub.o"
+	@echo "... src/pointcloud_sub.i"
+	@echo "... src/pointcloud_sub.s"
 	@echo "... src/tf_pub.o"
 	@echo "... src/tf_pub.i"
 	@echo "... src/tf_pub.s"
