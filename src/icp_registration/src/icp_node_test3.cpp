@@ -574,7 +574,7 @@ void showPointCloud(PointCloudXYZI::Ptr cloud, std::string name, int R, int G, i
     // 创建一个点云颜色处理器
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> color_handler(cloud, R, G, B); // RGB颜色，白色
     viewer->addPointCloud<pcl::PointXYZI>(cloud, color_handler, name); // 添加点云到可视化器
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, name); // 设置点的大小
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, name); // 设置点的大小
  
     // 添加一个坐标系（可选）
     viewer->addCoordinateSystem(1.0);
