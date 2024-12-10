@@ -6,9 +6,21 @@
 #include <pcl/registration/icp.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/console/time.h>   // TicToc
- 
+#include <pcl/filters/voxel_grid.h>
+
+
+// TF_ROS1
+#include <tf/transform_broadcaster.h>  
+#include <tf/transform_listener.h>
+#include <tf/transform_datatypes.h>
+
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
+
+pcl::VoxelGrid<PointT> voxel_rough_filter_;
+pcl::VoxelGrid<PointT> voxel_refine_filter_;
+
+
 
 bool next_iteration = false;
 
@@ -35,6 +47,22 @@ keyboardEventOccurred (const pcl::visualization::KeyboardEvent& event,
         next_iteration = true;
 }
 
+
+tf::Transform mapMatrixToTransform(const Eigen::Matrix4d& transformation_matrix) {
+    tf::Transform transform;
+    Eigen::Matrix3d rotation_matrix = transformation_matrix.block<3, 3>(0, 0);
+    tf::Matrix3x3 tf_rotation(rotation_matrix(0, 0), rotation_matrix(0, 1), rotation_matrix(0, 2),
+                              rotation_matrix(1, 0), rotation_matrix(1, 1), rotation_matrix(1, 2),
+                              rotation_matrix(2, 0), rotation_matrix(2, 1), rotation_matrix(2, 2));
+    tf::Quaternion tf_quaternion;
+    tf_rotation.getRotation(tf_quaternion);
+    transform.setRotation(tf_quaternion);
+    tf::Vector3 tf_translation(transformation_matrix(0, 3), transformation_matrix(1, 3), transformation_matrix(2, 3));
+    transform.setOrigin(tf_translation);
+    return transform;
+}
+
+
 int main (int argc, char* argv[]){
     
     ros::init(argc,argv,"icp_node_test");  
@@ -44,7 +72,11 @@ int main (int argc, char* argv[]){
     // The point clouds we will be using
     PointCloudT::Ptr cloud_in (new PointCloudT);  // Original point cloud
     PointCloudT::Ptr cloud_tr (new PointCloudT);  // Transformed point cloud
+    PointCloudT::Ptr cloud_in_fil (new PointCloudT);  // Original point cloud
+    PointCloudT::Ptr cloud_tr_fil (new PointCloudT);  // Transformed point cloud
     PointCloudT::Ptr cloud_icp (new PointCloudT);  // ICP output point cloud
+    PointCloudT::Ptr cloud_icp_fil (new PointCloudT);  // ICP output point cloud
+
 
 //    我们检查程序的参数，设置初始ICP迭代的次数，然后尝试加载PCD文件。
     // Checking program arguments
@@ -96,8 +128,10 @@ int main (int argc, char* argv[]){
     transformation_matrix (1, 0) = sin (theta);
     transformation_matrix (1, 1) = std::cos (theta);
 
+    transformation_matrix (0, 3) = 1;
+    transformation_matrix (1, 3) = 1;
     // A translation on Z axis (0.4 meters)
-    transformation_matrix (2, 3) = 0.4;
+    transformation_matrix (2, 3) = 0;
 
     // Display in terminal the transformation matrix
     std::cout << "Applying this rigid transformation to: cloud_in -> cloud_icp" << std::endl;
@@ -112,6 +146,19 @@ int main (int argc, char* argv[]){
     // 然后，我们将点云转换为cloud_icp。 第一次对齐后，我们将在下一次使用该ICP对象时（当用户按下“空格”时）将ICP最大迭代次数设置为1。
 
     // The Iterative Closest Point algorithm
+
+
+    voxel_refine_filter_.setLeafSize(0.2, 0.2, 0.2);
+    voxel_refine_filter_.setInputCloud(cloud_in);
+    voxel_refine_filter_.filter(*cloud_in_fil);
+
+    voxel_refine_filter_.setLeafSize(0.2, 0.2, 0.2);
+    voxel_refine_filter_.setInputCloud(cloud_icp);
+    voxel_refine_filter_.filter(*cloud_icp_fil);
+
+    cloud_in = cloud_in_fil;
+    cloud_icp = cloud_icp_fil;
+
     time.tic ();
     pcl::IterativeClosestPoint<PointT, PointT> icp;
     // 设置最大迭代次数为iterations
@@ -186,6 +233,11 @@ int main (int argc, char* argv[]){
     // Register keyboard callback :
     viewer.registerKeyboardCallback (&keyboardEventOccurred, (void*) NULL);
 
+
+    tf::TransformBroadcaster tf_broadcaster_;
+    tf::Transform map_to_odom_transform;
+    
+
     // Display the visualiser
     while (!viewer.wasStopped ())
     {
@@ -223,6 +275,18 @@ int main (int argc, char* argv[]){
                 std::string iterations_cnt = "ICP iterations = " + ss.str ();
                 viewer.updateText (iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt");
                 viewer.updatePointCloud (cloud_icp, cloud_icp_color_h, "cloud_icp_v2");
+
+                map_to_odom_transform = mapMatrixToTransform(transformation_matrix);
+
+                ros::Rate rate(100);
+                while(ros::ok()){
+                    tf_broadcaster_.sendTransform(tf::StampedTransform(map_to_odom_transform, 
+                        ros::Time::now(), "map", "odom_icp"));
+                    rate.sleep();
+                    ROS_INFO("TF PUB!");
+                }
+                
+
             }
             else
             {

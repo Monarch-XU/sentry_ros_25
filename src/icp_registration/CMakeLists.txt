@@ -146,6 +146,7 @@ include_directories(
 add_executable(icp_node_test src/icp_node_test.cpp)
 add_executable(icp_node src/icp_node.cpp)
 add_executable(icp_node_test3 src/icp_node_test3.cpp)
+add_executable(icp_node_test4_1 src/icp_node_test4_1.cpp)
 add_executable(pointcloud_sub src/pointcloud_sub.cpp)
 add_executable(tf_pub src/tf_pub.cpp)
 add_executable(pointcloud_pub src/pointcloud_pub.cpp)
@@ -179,6 +180,10 @@ target_link_libraries(icp_node_test3
   ${PCL_LIBRARIES}
   ${catkin_LIBRARIES}
 )
+target_link_libraries(icp_node_test4_1
+  ${PCL_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
 target_link_libraries(pointcloud_sub
   ${catkin_LIBRARIES}
 )
@@ -188,6 +193,7 @@ target_link_libraries(tf_pub
 target_link_libraries(pointcloud_pub
   ${catkin_LIBRARIES}
 )
+
 
 #############
 ## Install ##
